@@ -1,6 +1,6 @@
 // Card data source. Swap in the live API address here when it is back up:
 // "https://api.pokemontcg.io/v2/cards?pageSize=6"
-const API_URL = "/sample-cards.json";
+const API_URL = "https://api.pokemontcg.io/v2/cards?pageSize=24";
 
 // Pick one price for a card. Prices differ by print type (normal,
 // holofoil, ...), so for now we take the first type listed.
@@ -59,12 +59,30 @@ function compareCards(a, b, sortValue) {
     return sortValue === "price-asc" ? priceA - priceB : priceB - priceA;
 }
 
-// Apply the current search text and sort choice, then redraw the cards.
+// Fill a dropdown with the unique values found in the loaded cards.
+// getValue picks the field to use from each card (set name, rarity, ...).
+function fillFilter(selectId, getValue) {
+    const select = document.querySelector(selectId);
+    const values = new Set(allCards.map(getValue).filter(Boolean));
+    [...values].sort().forEach((value) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+    });
+}
+
+// Apply search, set, rarity, and sort, then redraw the cards.
 function updateDisplay() {
     const term = document.querySelector("#search").value.trim().toLowerCase();
+    const setName = document.querySelector("#set-filter").value;
+    const rarity = document.querySelector("#rarity-filter").value;
     const sortValue = document.querySelector("#sort").value;
+
     const results = allCards
         .filter((card) => card.name.toLowerCase().includes(term))
+        .filter((card) => !setName || card.set.name === setName)
+        .filter((card) => !rarity || card.rarity === rarity)
         .sort((a, b) => compareCards(a, b, sortValue));
     renderCards(results);
 }
@@ -78,7 +96,10 @@ async function loadCards() {
         }
         const result = await response.json();
         allCards = result.data;
+        fillFilter("#set-filter", (card) => card.set.name);
+        fillFilter("#rarity-filter", (card) => card.rarity);
         updateDisplay();
+
     } catch (error) {
         console.error(error);
         list.textContent = "Sorry, the cards could not be loaded. Please try again.";
@@ -87,4 +108,6 @@ async function loadCards() {
 
 document.querySelector("#search").addEventListener("input", updateDisplay);
 document.querySelector("#sort").addEventListener("change", updateDisplay);
+document.querySelector("#set-filter").addEventListener("change", updateDisplay);
+document.querySelector("#rarity-filter").addEventListener("change", updateDisplay);
 loadCards();
