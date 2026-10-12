@@ -1,6 +1,18 @@
-// Card data source. Swap in the live API address here when it is back up:
-// "https://api.pokemontcg.io/v2/cards?pageSize=6"
-const API_URL = "https://api.carddex.dev/compat/pokemontcg/v2/cards?pageSize=50&orderBy=-set.releaseDate";
+// CardDex API (pokemontcg.io-compatible). Newest sets first.
+const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
+
+// Cards of the currently selected set. Search, sort, and rarity
+// filtering work on this list without calling the API again.
+let allCards = [];
+
+// Fetch a URL and return its JSON, or throw if the request failed.
+async function fetchJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`The API responded with status ${response.status}`);
+    }
+    return response.json();
+}
 
 // Pick one price for a card. Prices differ by print type (normal,
 // holofoil, ...), so for now we take the first type listed.
@@ -29,9 +41,18 @@ function createCardElement(card) {
     return element;
 }
 
-// All cards fetched from the data source. Search filters this list
-// without calling the API again.
-let allCards = [];
+// Compare two cards for sorting. Cards without a price always go last.
+function compareCards(a, b, sortValue) {
+    if (sortValue === "name-asc") {
+        return a.name.localeCompare(b.name);
+    }
+    const priceA = getMarketPrice(a);
+    const priceB = getMarketPrice(b);
+    if (priceA === null && priceB === null) return 0;
+    if (priceA === null) return 1;
+    if (priceB === null) return -1;
+    return sortValue === "price-asc" ? priceA - priceB : priceB - priceA;
+}
 
 // Show the given cards on the page, replacing whatever was there.
 function renderCards(cards) {
@@ -46,68 +67,80 @@ function renderCards(cards) {
     });
 }
 
-// Compare two cards for sorting. Cards without a price always go last.
-function compareCards(a, b, sortValue) {
-    if (sortValue === "name-asc") {
-        return a.name.localeCompare(b.name);
-    }
-    const priceA = getMarketPrice(a);
-    const priceB = getMarketPrice(b);
-    if (priceA === null && priceB === null) return 0;
-    if (priceA === null) return 1;
-    if (priceB === null) return -1;
-    return sortValue === "price-asc" ? priceA - priceB : priceB - priceA;
-}
-
-// Fill a dropdown with the unique values found in the loaded cards.
-// getValue picks the field to use from each card (set name, rarity, ...).
-function fillFilter(selectId, getValue) {
-    const select = document.querySelector(selectId);
-    const values = new Set(allCards.map(getValue).filter(Boolean));
-    [...values].sort().forEach((value) => {
+// Fill the rarity dropdown with the rarities found in the loaded cards.
+function fillRarityFilter() {
+    const select = document.querySelector("#rarity-filter");
+    select.innerHTML = '<option value="">All rarities</option>';
+    const rarities = new Set(allCards.map((card) => card.rarity).filter(Boolean));
+    [...rarities].sort().forEach((rarity) => {
         const option = document.createElement("option");
-        option.value = value;
-        option.textContent = value;
+        option.value = rarity;
+        option.textContent = rarity;
         select.appendChild(option);
     });
 }
 
-// Apply search, set, rarity, and sort, then redraw the cards.
+// Apply search, rarity, and sort, then redraw the cards.
 function updateDisplay() {
     const term = document.querySelector("#search").value.trim().toLowerCase();
-    const setName = document.querySelector("#set-filter").value;
     const rarity = document.querySelector("#rarity-filter").value;
     const sortValue = document.querySelector("#sort").value;
 
     const results = allCards
         .filter((card) => card.name.toLowerCase().includes(term))
-        .filter((card) => !setName || card.set.name === setName)
         .filter((card) => !rarity || card.rarity === rarity)
         .sort((a, b) => compareCards(a, b, sortValue));
     renderCards(results);
 }
 
-async function loadCards() {
-    const list = document.querySelector("#card-list");
-    try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`The API responded with status ${response.status}`);
-        }
-        const result = await response.json();
-        allCards = result.data;
-        fillFilter("#set-filter", (card) => card.set.name);
-        fillFilter("#rarity-filter", (card) => card.rarity);
-        updateDisplay();
+// Fill the set dropdown with the 30 newest sets.
+// Returns the id of the newest set, so it can be shown first.
+async function loadSets() {
+    const select = document.querySelector("#set-filter");
+    const result = await fetchJson(`${API_BASE}/sets?orderBy=-releaseDate&pageSize=30`);
+    result.data.forEach((set) => {
+        const option = document.createElement("option");
+        option.value = set.id;
+        option.textContent = set.name;
+        select.appendChild(option);
+    });
+    return result.data[0]?.id;
+}
 
+// Fetch every card in one set (up to 250) and show them.
+async function loadCards(setId) {
+    const list = document.querySelector("#card-list");
+    list.textContent = "Loading cards...";
+    try {
+        const result = await fetchJson(`${API_BASE}/cards?q=set.id:${setId}&pageSize=250`);
+        allCards = result.data;
+        fillRarityFilter();
+        updateDisplay();
     } catch (error) {
         console.error(error);
         list.textContent = "Sorry, the cards could not be loaded. Please try again.";
     }
 }
 
+// Start the page: load the sets, then the newest set's cards.
+async function init() {
+    try {
+        const newestSetId = await loadSets();
+        if (newestSetId) {
+            await loadCards(newestSetId);
+        }
+    } catch (error) {
+        console.error(error);
+        document.querySelector("#card-list").textContent =
+            "Sorry, the sets could not be loaded. Please try again.";
+    }
+}
+
 document.querySelector("#search").addEventListener("input", updateDisplay);
 document.querySelector("#sort").addEventListener("change", updateDisplay);
-document.querySelector("#set-filter").addEventListener("change", updateDisplay);
 document.querySelector("#rarity-filter").addEventListener("change", updateDisplay);
-loadCards();
+document.querySelector("#set-filter").addEventListener("change", (event) => {
+    loadCards(event.target.value);
+});
+
+init();
