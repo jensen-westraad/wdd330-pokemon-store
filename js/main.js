@@ -1,6 +1,6 @@
 // Card data source. Swap in the live API address here when it is back up:
 // "https://api.pokemontcg.io/v2/cards?pageSize=6"
-const API_URL = "https://api.pokemontcg.io/v2/cards?pageSize=24";
+const API_URL = "https://api.carddex.dev/compat/pokemontcg/v2/cards?pageSize=50&orderBy=-set.releaseDate";
 
 // Pick one price for a card. Prices differ by print type (normal,
 // holofoil, ...), so for now we take the first type listed.
