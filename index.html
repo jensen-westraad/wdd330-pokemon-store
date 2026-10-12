@@ -11,6 +11,12 @@
 <body>
     <h1>Pokémon TCG Store</h1>
     <label for="search">Search cards</label>
+    <label for="sort">Sort by</label>
+    <select id="sort">
+        <option value="name-asc">Name (A–Z)</option>
+        <option value="price-asc">Price (low to high)</option>
+        <option value="price-desc">Price (high to low)</option>
+    </select>
     <input type="search" id="search" placeholder="Search by name">
     <div id="card-list"></div>
     <script type="module" src="/js/main.js"></script>

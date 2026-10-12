@@ -46,13 +46,27 @@ function renderCards(cards) {
     });
 }
 
-// Runs every time the user types in the search box.
-function handleSearch(event) {
-    const term = event.target.value.trim().toLowerCase();
-    const matches = allCards.filter((card) =>
-        card.name.toLowerCase().includes(term)
-    );
-    renderCards(matches);
+// Compare two cards for sorting. Cards without a price always go last.
+function compareCards(a, b, sortValue) {
+    if (sortValue === "name-asc") {
+        return a.name.localeCompare(b.name);
+    }
+    const priceA = getMarketPrice(a);
+    const priceB = getMarketPrice(b);
+    if (priceA === null && priceB === null) return 0;
+    if (priceA === null) return 1;
+    if (priceB === null) return -1;
+    return sortValue === "price-asc" ? priceA - priceB : priceB - priceA;
+}
+
+// Apply the current search text and sort choice, then redraw the cards.
+function updateDisplay() {
+    const term = document.querySelector("#search").value.trim().toLowerCase();
+    const sortValue = document.querySelector("#sort").value;
+    const results = allCards
+        .filter((card) => card.name.toLowerCase().includes(term))
+        .sort((a, b) => compareCards(a, b, sortValue));
+    renderCards(results);
 }
 
 async function loadCards() {
@@ -64,12 +78,13 @@ async function loadCards() {
         }
         const result = await response.json();
         allCards = result.data;
-        renderCards(allCards);
+        updateDisplay();
     } catch (error) {
         console.error(error);
         list.textContent = "Sorry, the cards could not be loaded. Please try again.";
     }
 }
 
-document.querySelector("#search").addEventListener("input", handleSearch);
+document.querySelector("#search").addEventListener("input", updateDisplay);
+document.querySelector("#sort").addEventListener("change", updateDisplay);
 loadCards();
