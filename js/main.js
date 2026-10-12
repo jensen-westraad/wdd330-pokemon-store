@@ -29,6 +29,32 @@ function createCardElement(card) {
     return element;
 }
 
+// All cards fetched from the data source. Search filters this list
+// without calling the API again.
+let allCards = [];
+
+// Show the given cards on the page, replacing whatever was there.
+function renderCards(cards) {
+    const list = document.querySelector("#card-list");
+    list.innerHTML = "";
+    if (cards.length === 0) {
+        list.textContent = "No cards match your search.";
+        return;
+    }
+    cards.forEach((card) => {
+        list.appendChild(createCardElement(card));
+    });
+}
+
+// Runs every time the user types in the search box.
+function handleSearch(event) {
+    const term = event.target.value.trim().toLowerCase();
+    const matches = allCards.filter((card) =>
+        card.name.toLowerCase().includes(term)
+    );
+    renderCards(matches);
+}
+
 async function loadCards() {
     const list = document.querySelector("#card-list");
     try {
@@ -37,14 +63,13 @@ async function loadCards() {
             throw new Error(`The API responded with status ${response.status}`);
         }
         const result = await response.json();
-
-        result.data.forEach((card) => {
-            list.appendChild(createCardElement(card));
-        });
+        allCards = result.data;
+        renderCards(allCards);
     } catch (error) {
         console.error(error);
         list.textContent = "Sorry, the cards could not be loaded. Please try again.";
     }
 }
 
+document.querySelector("#search").addEventListener("input", handleSearch);
 loadCards();
