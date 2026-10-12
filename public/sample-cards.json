@@ -1,0 +1,79 @@
+{
+    "data": [
+        {
+            "id": "hgss4-1",
+            "name": "Aggron",
+            "types": [
+                "Metal"
+            ],
+            "rarity": "Rare Holo",
+            "set": {
+                "name": "HS—Triumphant"
+            },
+            "images": {
+                "small": "https://images.pokemontcg.io/hgss4/1.png",
+                "large": "https://images.pokemontcg.io/hgss4/1_hires.png"
+            },
+            "tcgplayer": {
+                "prices": {
+                    "holofoil": {
+                        "market": 10.09
+                    },
+                    "reverseHolofoil": {
+                        "market": 19.41
+                    }
+                }
+            }
+        },
+        {
+            "id": "xy5-1",
+            "name": "Weedle",
+            "types": [
+                "Grass"
+            ],
+            "rarity": "Common",
+            "set": {
+                "name": "Primal Clash"
+            },
+            "images": {
+                "small": "https://images.pokemontcg.io/xy5/1.png",
+                "large": "https://images.pokemontcg.io/xy5/1_hires.png"
+            },
+            "tcgplayer": {
+                "prices": {
+                    "normal": {
+                        "market": 0.21
+                    },
+                    "reverseHolofoil": {
+                        "market": 0.59
+                    }
+                }
+            }
+        },
+        {
+            "id": "pl1-1",
+            "name": "Ampharos",
+            "types": [
+                "Lightning"
+            ],
+            "rarity": "Rare Holo",
+            "set": {
+                "name": "Platinum"
+            },
+            "images": {
+                "small": "https://images.pokemontcg.io/pl1/1.png",
+                "large": "https://images.pokemontcg.io/pl1/1_hires.png"
+            },
+            "tcgplayer": {
+                "prices": {
+                    "holofoil": {
+                        "market": 34.07
+                    },
+                    "reverseHolofoil": {
+                        "market": 26.48
+                    }
+                }
+            }
+        }
+    ]
+}
