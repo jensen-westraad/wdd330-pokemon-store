@@ -5,13 +5,27 @@ const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
 // filtering work on this list without calling the API again.
 let allCards = [];
 
-// Fetch a URL and return its JSON, or throw if the request failed.
+// Fetch a URL and return its JSON. Gives up after 10 seconds, and throws
+// if the request failed, so the caller can show an error message.
 async function fetchJson(url) {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
     if (!response.ok) {
         throw new Error(`The API responded with status ${response.status}`);
     }
     return response.json();
+}
+
+// Try the live API. If it fails or times out, tell the visitor and
+// use a saved sample file instead.
+async function fetchWithFallback(url, fallbackUrl) {
+    try {
+        return await fetchJson(url);
+    } catch (error) {
+        console.warn("Live API unavailable, using sample data:", error);
+        document.querySelector("#notice").textContent =
+            "The live card data is unavailable right now, so sample cards are shown.";
+        return fetchJson(fallbackUrl);
+    }
 }
 
 // Pick one price for a card. Prices differ by print type (normal,
@@ -97,7 +111,10 @@ function updateDisplay() {
 // Returns the id of the newest set, so it can be shown first.
 async function loadSets() {
     const select = document.querySelector("#set-filter");
-    const result = await fetchJson(`${API_BASE}/sets?orderBy=-releaseDate&pageSize=30`);
+    const result = await fetchWithFallback(
+        `${API_BASE}/sets?orderBy=-releaseDate&pageSize=30`,
+        "/sample-sets.json"
+    );
     result.data.forEach((set) => {
         const option = document.createElement("option");
         option.value = set.id;
@@ -108,11 +125,15 @@ async function loadSets() {
 }
 
 // Fetch every card in one set (up to 250) and show them.
+// If the live API fails, fetchWithFallback loads the saved sample cards.
 async function loadCards(setId) {
     const list = document.querySelector("#card-list");
     list.textContent = "Loading cards...";
     try {
-        const result = await fetchJson(`${API_BASE}/cards?q=set.id:${setId}&pageSize=250`);
+        const result = await fetchWithFallback(
+            `${API_BASE}/cards?q=set.id:${setId}&pageSize=250`,
+            "/sample-cards.json"
+        );
         allCards = result.data;
         fillRarityFilter();
         updateDisplay();

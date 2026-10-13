@@ -1,76 +1,64 @@
 {
     "data": [
         {
-            "id": "hgss4-1",
-            "name": "Aggron",
-            "types": [
-                "Metal"
-            ],
-            "rarity": "Rare Holo",
-            "set": {
-                "name": "HS—Triumphant"
-            },
-            "images": {
-                "small": "https://images.pokemontcg.io/hgss4/1.png",
-                "large": "https://images.pokemontcg.io/hgss4/1_hires.png"
-            },
-            "tcgplayer": {
-                "prices": {
-                    "holofoil": {
-                        "market": 10.09
-                    },
-                    "reverseHolofoil": {
-                        "market": 19.41
-                    }
-                }
-            }
-        },
-        {
-            "id": "xy5-1",
-            "name": "Weedle",
-            "types": [
-                "Grass"
-            ],
+            "id": "me55-1",
+            "name": "Exeggcute",
             "rarity": "Common",
             "set": {
-                "name": "Primal Clash"
+                "id": "me55",
+                "name": "30th Celebration",
+                "releaseDate": "2026/09/16"
             },
             "images": {
-                "small": "https://images.pokemontcg.io/xy5/1.png",
-                "large": "https://images.pokemontcg.io/xy5/1_hires.png"
+                "small": "https://images.carddex.dev/cards/30c/30c-001--sm.webp",
+                "large": "https://images.carddex.dev/cards/30c/30c-001.webp"
             },
             "tcgplayer": {
                 "prices": {
-                    "normal": {
-                        "market": 0.21
-                    },
-                    "reverseHolofoil": {
-                        "market": 0.59
+                    "holofoil": {
+                        "market": 0.18
                     }
                 }
             }
         },
         {
-            "id": "pl1-1",
-            "name": "Ampharos",
-            "types": [
-                "Lightning"
-            ],
-            "rarity": "Rare Holo",
+            "id": "me55-2",
+            "name": "Alolan Exeggutor",
+            "rarity": "Common",
             "set": {
-                "name": "Platinum"
+                "id": "me55",
+                "name": "30th Celebration",
+                "releaseDate": "2026/09/16"
             },
             "images": {
-                "small": "https://images.pokemontcg.io/pl1/1.png",
-                "large": "https://images.pokemontcg.io/pl1/1_hires.png"
+                "small": "https://images.carddex.dev/cards/30c/30c-002--sm.webp",
+                "large": "https://images.carddex.dev/cards/30c/30c-002.webp"
             },
             "tcgplayer": {
                 "prices": {
                     "holofoil": {
-                        "market": 34.07
-                    },
-                    "reverseHolofoil": {
-                        "market": 26.48
+                        "market": 0.21
+                    }
+                }
+            }
+        },
+        {
+            "id": "me55-3",
+            "name": "Volbeat",
+            "rarity": "Common",
+            "set": {
+                "id": "me55",
+                "name": "30th Celebration",
+                "releaseDate": "2026/09/16"
+            },
+            "images": {
+                "small": "https://images.carddex.dev/cards/30c/30c-003--sm.webp",
+                "large": "https://images.carddex.dev/cards/30c/30c-003.webp"
+            },
+            "tcgplayer": {
+                "prices": {
+                    "holofoil": {
+                        "market": 0.18
                     }
                 }
             }
