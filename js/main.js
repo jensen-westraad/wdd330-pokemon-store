@@ -1,3 +1,5 @@
+import { addToCart, getCartCount } from "./cart.js";
+
 // CardDex API (pokemontcg.io-compatible). Newest sets first.
 const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
 
@@ -66,7 +68,7 @@ async function fetchWithFallback(url, fallbackUrl) {
 }
 
 // Pick one price for a card. Prices differ by print type (normal,
-// holofoil, ...), so for now we take the first type listed.
+// holofoil, ...), so for the tile we take the first type listed.
 // Returns a number, or null if the card has no price.
 function getMarketPrice(card) {
     const prices = card.tcgplayer?.prices;
@@ -75,16 +77,86 @@ function getMarketPrice(card) {
     return firstType?.market ?? null;
 }
 
+// List every print type of a card that has a market price, as
+// [{ type: "holofoil", market: 0.18 }, ...]. Used for the cart.
+function getPrintOptions(card) {
+    const prices = card.tcgplayer?.prices;
+    if (!prices) return [];
+    return Object.entries(prices)
+        .filter(([, printPrice]) => typeof printPrice.market === "number")
+        .map(([type, printPrice]) => ({ type, market: printPrice.market }));
+}
+
 // Build list items showing every available market price for a card.
 function buildPriceRows(card) {
-    const prices = card.tcgplayer?.prices;
-    if (!prices) return "<li>Price unavailable</li>";
-    const rows = Object.entries(prices)
-        .filter(([, printPrice]) => printPrice.market != null)
-        .map(([type, printPrice]) =>
-            `<li>${PRINT_LABELS[type] ?? type}: $${printPrice.market.toFixed(2)} USD</li>`
-        );
-    return rows.length > 0 ? rows.join("") : "<li>Price unavailable</li>";
+    const options = getPrintOptions(card);
+    if (options.length === 0) return "<li>Price unavailable</li>";
+    return options
+        .map(
+            ({ type, market }) =>
+                `<li>${PRINT_LABELS[type] ?? type}: $${market.toFixed(2)} USD</li>`
+        )
+        .join("");
+}
+
+// Build the "add to cart" controls shown in the details modal.
+function buildCartForm(card) {
+    const options = getPrintOptions(card);
+    if (options.length === 0) {
+        return `<div class="cart-form"><p>This card can't be added to the cart because it has no price.</p></div>`;
+    }
+    const optionTags = options
+        .map(
+            ({ type, market }) =>
+                `<option value="${type}">${PRINT_LABELS[type] ?? type} — $${market.toFixed(2)} USD</option>`
+        )
+        .join("");
+
+    return `
+    <div class="cart-form">
+      <label for="print-type">Print type</label>
+      <select id="print-type">${optionTags}</select>
+      <label for="quantity">Quantity</label>
+      <input type="number" id="quantity" min="1" max="99" value="1">
+      <button type="button" id="add-to-cart" class="details-button">Add to cart</button>
+      <p id="cart-message" role="status"></p>
+    </div>
+  `;
+}
+
+// Show the number of cards in the cart in the header.
+function updateCartCount() {
+    document.querySelector("#cart-count").textContent = getCartCount();
+}
+
+// Handle a click on the "Add to cart" button in the modal.
+function handleAddToCart(card) {
+    const message = document.querySelector("#cart-message");
+    const printType = document.querySelector("#print-type").value;
+    const quantity = Number.parseInt(document.querySelector("#quantity").value, 10);
+
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+        message.textContent = "Please enter a quantity from 1 to 99.";
+        return;
+    }
+
+    const option = getPrintOptions(card).find((entry) => entry.type === printType);
+    const saved = addToCart(
+        {
+            id: card.id,
+            printType,
+            name: card.name,
+            setName: card.set.name,
+            image: card.images.small,
+            price: option.market,
+        },
+        quantity
+    );
+
+    message.textContent = saved
+        ? `Added ${quantity} × ${card.name} (${PRINT_LABELS[printType] ?? printType}) to your cart.`
+        : "Sorry, the cart could not be saved in this browser.";
+    updateCartCount();
 }
 
 // Fill the details modal with one card's information and open it.
@@ -107,8 +179,14 @@ function openCardDialog(card) {
       <dl>${details}</dl>
       <h3>TCGplayer market price</h3>
       <ul>${buildPriceRows(card)}</ul>
+      ${buildCartForm(card)}
     </div>
   `;
+
+    document
+        .querySelector("#add-to-cart")
+        ?.addEventListener("click", () => handleAddToCart(card));
+
     document.querySelector("#card-dialog").showModal();
 }
 
@@ -289,6 +367,7 @@ async function loadCards(setId) {
 
 // Start the page: load the sets, then the newest set's cards.
 async function init() {
+    updateCartCount();
     try {
         const newestSetId = await loadSets();
         if (newestSetId) {

@@ -7,6 +7,8 @@
     --ink: #1b1f2a;
     --page: #f4f5f7;
     --border: #c9ced8;
+    --pixel-font: "Press Start 2P", ui-monospace, "Courier New", monospace;
+    --shadow: 4px 4px 0 var(--ink);
 }
 
 * {
@@ -16,11 +18,24 @@
 body {
     font-family: system-ui, sans-serif;
     margin: 0;
-    background: var(--page);
     color: var(--ink);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    /* Faint pixel checkerboard */
+    background-color: var(--page);
+    background-image:
+        linear-gradient(45deg, #eceef2 25%, transparent 25%, transparent 75%, #eceef2 75%),
+        linear-gradient(45deg, #eceef2 25%, transparent 25%, transparent 75%, #eceef2 75%);
+    background-position: 0 0, 8px 8px;
+    background-size: 16px 16px;
+}
+
+/* The pixel font has a single weight, so avoid faux-bold smudging */
+h1,
+h2,
+h3 {
+    font-weight: normal;
 }
 
 main {
@@ -35,16 +50,18 @@ main {
 .site-header {
     background: var(--red);
     color: #ffffff;
-    border-bottom: 5px solid var(--navy);
+    border-bottom: 4px solid var(--ink);
+    box-shadow: 0 6px 0 var(--navy);
+    margin-bottom: 6px;
 }
 
 .header-inner {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 1rem;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0.9rem 1rem;
+    padding: 1rem;
 }
 
 .logo {
@@ -53,13 +70,15 @@ main {
 
 .site-header h1 {
     margin: 0;
-    font-size: 1.6rem;
-    line-height: 1.1;
+    font-family: var(--pixel-font);
+    font-size: clamp(0.95rem, 3.5vw, 1.4rem);
+    line-height: 1.3;
     color: #ffffff;
+    text-shadow: 3px 3px 0 var(--ink);
 }
 
 .tagline {
-    margin: 0.2rem 0 0;
+    margin: 0.5rem 0 0;
     font-size: 0.95rem;
 }
 
@@ -69,17 +88,18 @@ main {
     grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
     gap: 1rem;
     padding: 1rem;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
     background: #ffffff;
-    border-radius: 12px;
-    border-top: 5px solid var(--yellow);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    border: 4px solid var(--ink);
+    border-top: 10px solid var(--yellow);
+    border-radius: 0;
+    box-shadow: var(--shadow);
 }
 
 .control {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.5rem;
 }
 
 .control-search {
@@ -87,8 +107,9 @@ main {
 }
 
 .control label {
-    font-size: 0.85rem;
-    font-weight: bold;
+    font-family: var(--pixel-font);
+    font-size: 0.65rem;
+    line-height: 1.4;
     color: var(--navy);
 }
 
@@ -99,8 +120,9 @@ main {
     font: inherit;
     color: var(--ink);
     background: #ffffff;
-    border: 2px solid var(--border);
-    border-radius: 8px;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+    box-shadow: inset 3px 3px 0 #e3e6ec;
 }
 
 .control input:hover,
@@ -110,9 +132,8 @@ main {
 
 .control input:focus-visible,
 .control select:focus-visible {
-    outline: 3px solid var(--navy);
+    outline: 3px solid var(--red);
     outline-offset: 2px;
-    border-color: var(--navy);
 }
 
 /* ---------- Notice (shown only when there is a message) ---------- */
@@ -120,8 +141,9 @@ main {
     margin: 0 0 1rem;
     padding: 0.75rem 1rem;
     background: #fff6cc;
-    border-left: 5px solid var(--yellow);
-    border-radius: 8px;
+    border: 3px solid var(--ink);
+    border-left: 10px solid var(--yellow);
+    border-radius: 0;
 }
 
 #notice:empty {
@@ -131,8 +153,8 @@ main {
 /* ---------- Card grid ---------- */
 #card-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1.25rem;
 }
 
 .card {
@@ -140,21 +162,21 @@ main {
     display: flex;
     flex-direction: column;
     background: #ffffff;
-    border-radius: 12px;
+    border: 4px solid var(--ink);
+    border-radius: 0;
     padding: 0.75rem;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: var(--shadow);
+    transition: transform 0.1s steps(2), box-shadow 0.1s steps(2);
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--ink);
 }
 
 .card img {
     width: 100%;
     height: auto;
-    border-radius: 8px;
 }
 
 .card p {
@@ -172,31 +194,37 @@ main {
     justify-content: space-between;
     align-items: center;
     gap: 0.5rem;
-    min-height: 2rem;
-    margin-bottom: 0.4rem;
+    min-height: 2.2rem;
+    margin-bottom: 0.5rem;
 }
 
 .card-top h2 {
     margin: 0;
     min-width: 0;
-    font-size: 1rem;
-    font-weight: bold;
-    line-height: 1.2;
+    font-family: var(--pixel-font);
+    font-size: 0.65rem;
+    line-height: 1.5;
     color: var(--navy);
+    overflow-wrap: anywhere;
 }
 
 /* ---------- Buttons ---------- */
 .details-button {
     margin-top: auto;
-    padding: 0.55rem 0.8rem;
-    font: inherit;
-    font-weight: bold;
+    padding: 0.75rem 0.6rem;
+    font-family: var(--pixel-font);
+    font-size: 0.65rem;
+    line-height: 1.4;
     color: var(--ink);
     background: var(--yellow);
-    border: 2px solid var(--navy);
-    border-radius: 8px;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--ink);
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.card .details-button {
+    margin-top: 0.7rem;
 }
 
 .details-button:hover {
@@ -204,28 +232,29 @@ main {
     color: #ffffff;
 }
 
-.details-button:focus-visible {
-    outline: 3px solid var(--navy);
-    outline-offset: 2px;
+.details-button:active {
+    transform: translate(3px, 3px);
+    box-shadow: none;
 }
 
-.card .details-button {
-    margin-top: 0.6rem;
+.details-button:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
 }
 
 /* ---------- Rarity badge ---------- */
 .rarity-badge {
-    width: 1.8rem;
-    height: 1.8rem;
+    width: 1.9rem;
+    height: 1.9rem;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: none;
-    border-radius: 50%;
+    border: 2px solid var(--ink);
+    border-radius: 0;
     color: #ffffff;
-    font-size: 1rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    font-size: 0.95rem;
+    box-shadow: 2px 2px 0 var(--ink);
 }
 
 button.rarity-badge {
@@ -234,8 +263,13 @@ button.rarity-badge {
 
 button.rarity-badge:hover,
 button.rarity-badge:focus-visible {
-    outline: 2px solid var(--navy);
+    outline: 3px solid var(--red);
     outline-offset: 2px;
+}
+
+button.rarity-badge:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
 }
 
 .rarity-common {
@@ -257,16 +291,17 @@ button.rarity-badge:focus-visible {
 /* ---------- Modals (shared) ---------- */
 #card-dialog,
 #rarity-dialog {
-    border: none;
-    border-radius: 12px;
+    border: 4px solid var(--ink);
+    border-radius: 0;
     padding: 0;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 8px 8px 0 var(--ink);
 }
 
 #card-dialog::backdrop,
 #rarity-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.65);
 }
 
 #dialog-close,
@@ -274,20 +309,27 @@ button.rarity-badge:focus-visible {
     position: absolute;
     top: 0.6rem;
     right: 0.6rem;
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2.3rem;
+    height: 2.3rem;
     font-size: 1.4rem;
     line-height: 1;
     color: #ffffff;
     background: var(--red);
-    border: none;
-    border-radius: 50%;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+    box-shadow: 2px 2px 0 var(--ink);
     cursor: pointer;
 }
 
 #dialog-close:hover,
 #rarity-close:hover {
     background: var(--red-dark);
+}
+
+#dialog-close:active,
+#rarity-close:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
 }
 
 #dialog-close:focus-visible,
@@ -297,8 +339,17 @@ button.rarity-badge:focus-visible {
 }
 
 #card-dialog h2,
-#card-dialog h3,
 #rarity-dialog h2 {
+    font-family: var(--pixel-font);
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--navy);
+}
+
+#card-dialog h3 {
+    font-family: var(--pixel-font);
+    font-size: 0.7rem;
+    line-height: 1.5;
     color: var(--navy);
 }
 
@@ -322,7 +373,6 @@ button.rarity-badge:focus-visible {
 #dialog-content img {
     width: 100%;
     height: auto;
-    border-radius: 8px;
 }
 
 #dialog-content dt {
@@ -353,12 +403,12 @@ button.rarity-badge:focus-visible {
     gap: 0.75rem;
     align-items: flex-start;
     padding: 0.6rem;
-    border-radius: 8px;
+    border-radius: 0;
 }
 
 .rarity-guide-item.current {
     background: #fff6cc;
-    outline: 2px solid #e0a800;
+    outline: 3px solid var(--ink);
 }
 
 .rarity-guide-item p {
@@ -374,13 +424,14 @@ button.rarity-badge:focus-visible {
 .site-footer {
     background: var(--navy);
     color: #ffffff;
-    border-top: 5px solid var(--red);
+    border-top: 8px solid var(--red);
+    box-shadow: inset 0 4px 0 var(--ink);
 }
 
 .footer-inner {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.25rem 1rem;
+    padding: 1.5rem 1rem;
 }
 
 .footer-inner p {
@@ -400,11 +451,78 @@ button.rarity-badge:focus-visible {
 @media (prefers-reduced-motion: reduce) {
 
     .card,
-    .details-button {
+    .details-button,
+    .rarity-badge {
         transition: none;
     }
 
-    .card:hover {
+    .card:hover,
+    .details-button:active,
+    button.rarity-badge:active,
+    #dialog-close:active,
+    #rarity-close:active {
         transform: none;
     }
+}
+
+/* ---------- Cart count in the header ---------- */
+.header-inner {
+    flex-wrap: wrap;
+}
+
+.cart-status {
+    margin: 0 0 0 auto;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--pixel-font);
+    font-size: 0.65rem;
+    line-height: 1.4;
+    color: #ffffff;
+    background: var(--navy);
+    border: 3px solid var(--ink);
+    box-shadow: 3px 3px 0 var(--ink);
+    white-space: nowrap;
+}
+
+/* ---------- Add to cart (inside the details modal) ---------- */
+.cart-form {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 3px dashed var(--border);
+}
+
+.cart-form label {
+    font-family: var(--pixel-font);
+    font-size: 0.6rem;
+    line-height: 1.4;
+    color: var(--navy);
+}
+
+.cart-form select,
+.cart-form input {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+    font: inherit;
+    color: var(--ink);
+    background: #ffffff;
+    border: 3px solid var(--ink);
+    border-radius: 0;
+}
+
+.cart-form select:focus-visible,
+.cart-form input:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 2px;
+}
+
+#add-to-cart {
+    margin-top: 0.5rem;
+}
+
+#cart-message {
+    min-height: 1.2em;
+    margin: 0.25rem 0 0;
+    font-weight: bold;
+    color: var(--navy);
 }

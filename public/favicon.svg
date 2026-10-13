@@ -1,6 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-  <circle cx="24" cy="24" r="21" fill="#ffffff" stroke="#1b1f2a" stroke-width="3"/>
-  <path d="M3 24 A21 21 0 0 1 45 24 Z" fill="#cc0000" stroke="#1b1f2a" stroke-width="3" stroke-linejoin="round"/>
-  <line x1="3" y1="24" x2="45" y2="24" stroke="#1b1f2a" stroke-width="3"/>
-  <circle cx="24" cy="24" r="6.5" fill="#ffffff" stroke="#1b1f2a" stroke-width="3"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" shape-rendering="crispEdges">
+  <path fill="#1b1f2a" d="M12 0h24v4h-24z M8 4h4v4h-4z M36 4h4v4h-4z M4 8h4v4h-4z M40 8h4v4h-4z M0 12h4v4h-4z M44 12h4v4h-4z M0 16h4v4h-4z M16 16h16v4h-16z M44 16h4v4h-4z M0 20h20v8h-20z M28 20h20v8h-20z M0 28h4v4h-4z M16 28h16v4h-16z M44 28h4v4h-4z M0 32h4v4h-4z M44 32h4v4h-4z M4 36h4v4h-4z M40 36h4v4h-4z M8 40h4v4h-4z M36 40h4v4h-4z M12 44h24v4h-24z"/>
+  <path fill="#cc0000" d="M12 4h24v4h-24z M8 8h32v4h-32z M4 12h40v4h-40z M4 16h12v4h-12z M32 16h12v4h-12z"/>
+  <path fill="#ffffff" d="M20 20h8v8h-8z M4 28h12v4h-12z M32 28h12v4h-12z M4 32h40v4h-40z M8 36h32v4h-32z M12 40h24v4h-24z"/>
 </svg>
