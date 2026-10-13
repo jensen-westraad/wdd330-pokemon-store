@@ -1,3 +1,4 @@
+/* ---------- Base ---------- */
 body {
     font-family: system-ui, sans-serif;
     margin: 0;
@@ -10,6 +11,7 @@ h1 {
     color: #1d2d5c;
 }
 
+/* ---------- Card grid ---------- */
 #card-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -17,6 +19,9 @@ h1 {
 }
 
 .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
     background: #ffffff;
     border-radius: 12px;
     padding: 0.75rem;
@@ -40,4 +45,172 @@ h1 {
 
 .card .price {
     font-weight: bold;
+}
+
+/* Strip above the image: card name on the left, rarity badge on the right */
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2rem;
+    margin-bottom: 0.4rem;
+}
+
+.card-top h2 {
+    margin: 0;
+    min-width: 0;
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1.2;
+}
+.details-button {
+    margin-top: auto;
+    padding: 0.4rem 0.8rem;
+    cursor: pointer;
+}
+
+/* ---------- Rarity badge ---------- */
+.rarity-badge {
+    width: 1.8rem;
+    height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 50%;
+    color: #ffffff;
+    font-size: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+button.rarity-badge {
+    cursor: pointer;
+}
+
+button.rarity-badge:hover,
+button.rarity-badge:focus-visible {
+    outline: 2px solid #1d2d5c;
+    outline-offset: 2px;
+}
+
+.rarity-common {
+    background: #6b7280;
+}
+
+.rarity-uncommon {
+    background: #15803d;
+}
+
+.rarity-rare {
+    background: #b45309;
+}
+
+.rarity-special {
+    background: #6d28d9;
+}
+
+/* ---------- Card details modal ---------- */
+#card-dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: min(700px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#card-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#dialog-content {
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+@media (min-width: 600px) {
+    #dialog-content {
+        grid-template-columns: 260px 1fr;
+    }
+}
+
+#dialog-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+#dialog-content dt {
+    font-weight: bold;
+}
+
+#dialog-content dd {
+    margin: 0 0 0.5rem;
+}
+
+#dialog-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* ---------- Rarity guide modal ---------- */
+#rarity-dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    width: min(460px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#rarity-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+#rarity-content {
+    padding: 1.5rem;
+}
+
+#rarity-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.rarity-guide {
+    list-style: none;
+    margin: 1rem 0;
+    padding: 0;
+}
+
+.rarity-guide-item {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.6rem;
+    border-radius: 8px;
+}
+
+.rarity-guide-item.current {
+    background: #fff6cc;
+    outline: 2px solid #e0a800;
+}
+
+.rarity-guide-item p {
+    margin: 0.15rem 0 0;
+}
+
+.rarity-note {
+    font-size: 0.85rem;
+    color: #555;
 }

@@ -26,8 +26,22 @@
     <select id="rarity-filter">
         <option value="">All rarities</option>
     </select>
+
+    <label for="artist-filter">Artist</label>
+    <select id="artist-filter">
+        <option value="">All artists</option>
+    </select>
+
     <input type="search" id="search" placeholder="Search by name">
     <div id="card-list"></div>
+    <dialog id="card-dialog" aria-labelledby="dialog-title">
+        <button type="button" id="dialog-close" aria-label="Close details">×</button>
+        <div id="dialog-content"></div>
+    </dialog>
+    <dialog id="rarity-dialog" aria-labelledby="rarity-title">
+        <button type="button" id="rarity-close" aria-label="Close rarity guide">×</button>
+        <div id="rarity-content"></div>
+    </dialog>
     <script type="module" src="/js/main.js"></script>
 </body>
 

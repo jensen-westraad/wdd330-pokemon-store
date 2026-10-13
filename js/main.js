@@ -1,9 +1,46 @@
 // CardDex API (pokemontcg.io-compatible). Newest sets first.
 const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
 
-// Cards of the currently selected set. Search, sort, and rarity
+// Cards of the currently selected set. Search, sort, and rarity/artist
 // filtering work on this list without calling the API again.
 let allCards = [];
+
+// Friendly names for the print types the API uses as price keys.
+const PRINT_LABELS = {
+    normal: "Normal",
+    holofoil: "Holofoil",
+    reverseHolofoil: "Reverse holofoil",
+};
+
+// Rarity tiers: each has a badge symbol, a name, and a plain-language
+// explanation for the rarity guide popup.
+const RARITY_TIERS = {
+    common: {
+        symbol: "●",
+        className: "rarity-common",
+        label: "Common",
+        description: "The cards you find most often in a pack.",
+    },
+    uncommon: {
+        symbol: "◆",
+        className: "rarity-uncommon",
+        label: "Uncommon",
+        description: "Found less often than commons.",
+    },
+    rare: {
+        symbol: "★",
+        className: "rarity-rare",
+        label: "Rare",
+        description: "Harder to find, and often holographic.",
+    },
+    special: {
+        symbol: "✦",
+        className: "rarity-special",
+        label: "Special rarities",
+        description:
+            "The scarcest, most sought-after cards, such as Double Rare, Ultra Rare, Illustration Rare, and Secret Rare.",
+    },
+};
 
 // Fetch a URL and return its JSON. Gives up after 10 seconds, and throws
 // if the request failed, so the caller can show an error message.
@@ -38,20 +75,111 @@ function getMarketPrice(card) {
     return firstType?.market ?? null;
 }
 
+// Build list items showing every available market price for a card.
+function buildPriceRows(card) {
+    const prices = card.tcgplayer?.prices;
+    if (!prices) return "<li>Price unavailable</li>";
+    const rows = Object.entries(prices)
+        .filter(([, printPrice]) => printPrice.market != null)
+        .map(([type, printPrice]) =>
+            `<li>${PRINT_LABELS[type] ?? type}: $${printPrice.market.toFixed(2)} USD</li>`
+        );
+    return rows.length > 0 ? rows.join("") : "<li>Price unavailable</li>";
+}
+
+// Fill the details modal with one card's information and open it.
+function openCardDialog(card) {
+    const details = [
+        ["Set", card.set.name],
+        ["Rarity", card.rarity],
+        ["Type", card.types?.join(", ")],
+        ["HP", card.hp],
+        ["Artist", card.artist],
+    ]
+        .filter(([, value]) => value)
+        .map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`)
+        .join("");
+
+    document.querySelector("#dialog-content").innerHTML = `
+    <img src="${card.images.large}" alt="${card.name} card, large view">
+    <div>
+      <h2 id="dialog-title">${card.name}</h2>
+      <dl>${details}</dl>
+      <h3>TCGplayer market price</h3>
+      <ul>${buildPriceRows(card)}</ul>
+    </div>
+  `;
+    document.querySelector("#card-dialog").showModal();
+}
+
+// Choose a rarity tier from the rarity text, or null if there is none.
+function getRarityTier(rarity) {
+    if (!rarity) return null;
+    const name = rarity.toLowerCase();
+    if (name.includes("uncommon")) return RARITY_TIERS.uncommon;
+    if (name.includes("common")) return RARITY_TIERS.common;
+    if (/double|ultra|illustration|hyper|secret|special|ace spec|shiny/.test(name)) {
+        return RARITY_TIERS.special;
+    }
+    if (name.includes("rare")) return RARITY_TIERS.rare;
+    return null;
+}
+
+// Open the rarity guide. The tier the visitor clicked is highlighted.
+function openRarityDialog(currentTier, rarityName) {
+    const items = Object.values(RARITY_TIERS)
+        .map((tier) => {
+            const isCurrent = tier === currentTier;
+            return `
+        <li class="rarity-guide-item${isCurrent ? " current" : ""}"
+            ${isCurrent ? 'aria-current="true"' : ""}>
+          <span class="rarity-badge ${tier.className}" aria-hidden="true">${tier.symbol}</span>
+          <div>
+            <strong>${tier.label}</strong>
+            <p>${tier.description}</p>
+          </div>
+        </li>`;
+        })
+        .join("");
+
+    document.querySelector("#rarity-content").innerHTML = `
+    <h2 id="rarity-title">Rarity guide</h2>
+    <p>This card is <strong>${rarityName}</strong>.</p>
+    <ul class="rarity-guide">${items}</ul>
+    <p class="rarity-note">Symbols group cards into four tiers for this store.</p>
+  `;
+    document.querySelector("#rarity-dialog").showModal();
+}
+
 // Build the HTML for one card tile.
 function createCardElement(card) {
     const price = getMarketPrice(card);
     const priceText = price === null ? "Price unavailable" : `$${price.toFixed(2)} USD`;
+    const tier = getRarityTier(card.rarity);
+    const badge = tier
+        ? `<button type="button" class="rarity-badge ${tier.className}"
+         aria-label="Rarity: ${card.rarity}. Open rarity guide"
+         title="${card.rarity}">${tier.symbol}</button>`
+        : "";
 
     const element = document.createElement("article");
     element.className = "card";
     element.innerHTML = `
+    <div class="card-top">
+      <h2>${card.name}</h2>
+      ${badge}
+    </div>
     <img src="${card.images.small}" alt="${card.name} card" loading="lazy">
-    <h2>${card.name}</h2>
     <p>${card.set.name}</p>
-    <p>${card.rarity ?? "Rarity unknown"}</p>
     <p class="price">${priceText}</p>
+    <button type="button" class="details-button">View details</button>
   `;
+    element
+        .querySelector(".details-button")
+        .addEventListener("click", () => openCardDialog(card));
+    element
+        .querySelector(".rarity-badge")
+        ?.addEventListener("click", () => openRarityDialog(tier, card.rarity));
     return element;
 }
 
@@ -94,15 +222,30 @@ function fillRarityFilter() {
     });
 }
 
-// Apply search, rarity, and sort, then redraw the cards.
+// Fill the artist dropdown with the artists found in the loaded cards.
+function fillArtistFilter() {
+    const select = document.querySelector("#artist-filter");
+    select.innerHTML = '<option value="">All artists</option>';
+    const artists = new Set(allCards.map((card) => card.artist).filter(Boolean));
+    [...artists].sort((a, b) => a.localeCompare(b)).forEach((artist) => {
+        const option = document.createElement("option");
+        option.value = artist;
+        option.textContent = artist;
+        select.appendChild(option);
+    });
+}
+
+// Apply search, rarity, artist, and sort, then redraw the cards.
 function updateDisplay() {
     const term = document.querySelector("#search").value.trim().toLowerCase();
     const rarity = document.querySelector("#rarity-filter").value;
+    const artist = document.querySelector("#artist-filter").value;
     const sortValue = document.querySelector("#sort").value;
 
     const results = allCards
         .filter((card) => card.name.toLowerCase().includes(term))
         .filter((card) => !rarity || card.rarity === rarity)
+        .filter((card) => !artist || card.artist === artist)
         .sort((a, b) => compareCards(a, b, sortValue));
     renderCards(results);
 }
@@ -136,6 +279,7 @@ async function loadCards(setId) {
         );
         allCards = result.data;
         fillRarityFilter();
+        fillArtistFilter();
         updateDisplay();
     } catch (error) {
         console.error(error);
@@ -157,11 +301,31 @@ async function init() {
     }
 }
 
+// Controls
 document.querySelector("#search").addEventListener("input", updateDisplay);
 document.querySelector("#sort").addEventListener("change", updateDisplay);
 document.querySelector("#rarity-filter").addEventListener("change", updateDisplay);
+document.querySelector("#artist-filter").addEventListener("change", updateDisplay);
 document.querySelector("#set-filter").addEventListener("change", (event) => {
     loadCards(event.target.value);
+});
+
+// Details modal: close button, and clicking the dimmed area outside it.
+const cardDialog = document.querySelector("#card-dialog");
+document
+    .querySelector("#dialog-close")
+    .addEventListener("click", () => cardDialog.close());
+cardDialog.addEventListener("click", (event) => {
+    if (event.target === cardDialog) cardDialog.close();
+});
+
+// Rarity guide modal: same closing behaviour.
+const rarityDialog = document.querySelector("#rarity-dialog");
+document
+    .querySelector("#rarity-close")
+    .addEventListener("click", () => rarityDialog.close());
+rarityDialog.addEventListener("click", (event) => {
+    if (event.target === rarityDialog) rarityDialog.close();
 });
 
 init();
