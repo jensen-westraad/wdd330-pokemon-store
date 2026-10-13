@@ -4,44 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Browse the newest Pokémon TCG sets card by card. Search by name, filter by set, rarity and artist, and see market prices.">
     <title>Pokémon TCG Store</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
-    <h1>Pokémon TCG Store</h1>
-    <p id="notice" role="status"></p>
-    <label for="search">Search cards</label>
-    <label for="sort">Sort by</label>
-    <select id="sort">
-        <option value="name-asc">Name (A–Z)</option>
-        <option value="price-asc">Price (low to high)</option>
-        <option value="price-desc">Price (high to low)</option>
-    </select>
-    <label for="set-filter">Set</label>
-    <select id="set-filter">
-    </select>
-    
-    <label for="rarity-filter">Rarity</label>
-    <select id="rarity-filter">
-        <option value="">All rarities</option>
-    </select>
+    <header class="site-header">
+        <div class="header-inner">
+            <svg class="logo" viewBox="0 0 48 48" width="44" height="44" aria-hidden="true" focusable="false">
+                <circle cx="24" cy="24" r="21" fill="#ffffff" stroke="#1b1f2a" stroke-width="3" />
+                <path d="M3 24 A21 21 0 0 1 45 24 Z" fill="#cc0000" stroke="#1b1f2a" stroke-width="3"
+                    stroke-linejoin="round" />
+                <line x1="3" y1="24" x2="45" y2="24" stroke="#1b1f2a" stroke-width="3" />
+                <circle cx="24" cy="24" r="6.5" fill="#ffffff" stroke="#1b1f2a" stroke-width="3" />
+            </svg>
+            <div>
+                <h1>Pokémon TCG Store</h1>
+                <p class="tagline">Browse the newest sets, card by card.</p>
+            </div>
+        </div>
+    </header>
 
-    <label for="artist-filter">Artist</label>
-    <select id="artist-filter">
-        <option value="">All artists</option>
-    </select>
+    <main>
+        <section class="controls" aria-label="Search, sort and filters">
+            <div class="control control-search">
+                <label for="search">Search cards</label>
+                <input type="search" id="search" placeholder="Search by name">
+            </div>
 
-    <input type="search" id="search" placeholder="Search by name">
-    <div id="card-list"></div>
+            <div class="control">
+                <label for="set-filter">Set</label>
+                <select id="set-filter"></select>
+            </div>
+
+            <div class="control">
+                <label for="rarity-filter">Rarity</label>
+                <select id="rarity-filter">
+                    <option value="">All rarities</option>
+                </select>
+            </div>
+
+            <div class="control">
+                <label for="artist-filter">Artist</label>
+                <select id="artist-filter">
+                    <option value="">All artists</option>
+                </select>
+            </div>
+
+            <div class="control">
+                <label for="sort">Sort by</label>
+                <select id="sort">
+                    <option value="name-asc">Name (A–Z)</option>
+                    <option value="price-asc">Price (low to high)</option>
+                    <option value="price-desc">Price (high to low)</option>
+                </select>
+            </div>
+        </section>
+
+        <p id="notice" role="status"></p>
+
+        <div id="card-list"></div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>Card data and images from <a href="https://carddex.dev" target="_blank" rel="noopener">CardDex</a>.
+                Prices are TCGplayer market estimates in US dollars, not retail prices.</p>
+            <p class="footer-small">Pokémon and its trademarks belong to their respective owners.
+                This is an unofficial fan-made student project for BYU–Idaho WDD330.</p>
+        </div>
+    </footer>
+
     <dialog id="card-dialog" aria-labelledby="dialog-title">
         <button type="button" id="dialog-close" aria-label="Close details">×</button>
         <div id="dialog-content"></div>
     </dialog>
+
     <dialog id="rarity-dialog" aria-labelledby="rarity-title">
         <button type="button" id="rarity-close" aria-label="Close rarity guide">×</button>
         <div id="rarity-content"></div>
     </dialog>
+
     <script type="module" src="/js/main.js"></script>
 </body>
 
