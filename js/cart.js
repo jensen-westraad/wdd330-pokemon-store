@@ -63,6 +63,28 @@ export function addToCart(item, quantity) {
     return saveCart(cart);
 }
 
+// Set the quantity of one line (found by card id + print type).
+// The quantity is kept between 1 and MAX_QUANTITY.
+// Returns true if the cart was saved.
+export function setQuantity(id, printType, quantity) {
+    const cart = getCart();
+    const line = cart.find(
+        (entry) => entry.id === id && entry.printType === printType
+    );
+    if (!line) return false;
+    line.quantity = Math.max(1, Math.min(quantity, MAX_QUANTITY));
+    return saveCart(cart);
+}
+
+// Remove one line (card id + print type) from the cart.
+// Returns true if the cart was saved.
+export function removeFromCart(id, printType) {
+    const cart = getCart().filter(
+        (line) => !(line.id === id && line.printType === printType)
+    );
+    return saveCart(cart);
+}
+
 // Total number of cards in the cart (all quantities added together).
 export function getCartCount() {
     return getCart().reduce((total, line) => total + line.quantity, 0);
