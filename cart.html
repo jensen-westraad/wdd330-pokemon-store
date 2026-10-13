@@ -37,6 +37,18 @@
         <p><a class="back-link" href="/index.html">← Continue shopping</a></p>
         <h1 id="cart-heading" tabindex="-1">Your cart</h1>
 
+        <section class="controls" aria-label="Currency">
+            <div class="control">
+                <label for="currency">Currency</label>
+                <select id="currency">
+                    <option value="USD">USD ($)</option>
+                    <option value="ZAR">ZAR (R)</option>
+                    <option value="EUR">EUR (€)</option>
+                </select>
+            </div>
+        </section>
+        <p id="currency-note" role="status"></p>
+
         <div id="cart-items"></div>
         <section id="cart-summary" aria-label="Order summary"></section>
     </main>
@@ -44,7 +56,9 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <p>Card data and images from <a href="https://carddex.dev" target="_blank" rel="noopener">CardDex</a>.
-                Prices are TCGplayer market estimates in US dollars, not retail prices.</p>
+                Prices are TCGplayer market estimates in US dollars, not retail prices. Other currencies are converted
+                using daily European Central Bank reference rates from <a href="https://frankfurter.dev" target="_blank"
+                    rel="noopener">Frankfurter</a>.</p>
             <p class="footer-small">Pokémon and its trademarks belong to their respective owners.
                 This is an unofficial fan-made student project for BYU–Idaho WDD330.</p>
         </div>

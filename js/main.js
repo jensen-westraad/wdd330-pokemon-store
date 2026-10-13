@@ -1,4 +1,10 @@
 import { addToCart, getCartCount } from "./cart.js";
+import {
+    getSelectedCurrency,
+    setSelectedCurrency,
+    loadRates,
+    formatPrice,
+} from "./currency.js";
 
 // CardDex API (pokemontcg.io-compatible). Newest sets first.
 const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
@@ -6,6 +12,30 @@ const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
 // Cards of the currently selected set. Search, sort, and rarity/artist
 // filtering work on this list without calling the API again.
 let allCards = [];
+
+// Currency display state. Prices stay in USD; they are only converted
+// when shown. rateInfo is { rates, date, source } or null if unavailable.
+let currency = getSelectedCurrency();
+let rateInfo = null;
+let ratesChecked = false;
+
+// Format a USD price (in dollars) for display in the chosen currency.
+function money(usd) {
+    return formatPrice(Math.round(usd * 100), currency, rateInfo?.rates);
+}
+
+// Explain to the visitor how the displayed prices were converted.
+function updateCurrencyNote() {
+    const note = document.querySelector("#currency-note");
+    if (currency === "USD" || !ratesChecked) {
+        note.textContent = "";
+    } else if (!rateInfo) {
+        note.textContent = "Exchange rates are unavailable, so prices are shown in USD.";
+    } else {
+        const old = rateInfo.source === "stale" ? " (saved rates, could not refresh)" : "";
+        note.textContent = `Converted from USD using European Central Bank rates dated ${rateInfo.date}${old}.`;
+    }
+}
 
 // Friendly names for the print types the API uses as price keys.
 const PRINT_LABELS = {
@@ -94,7 +124,7 @@ function buildPriceRows(card) {
     return options
         .map(
             ({ type, market }) =>
-                `<li>${PRINT_LABELS[type] ?? type}: $${market.toFixed(2)} USD</li>`
+                `<li>${PRINT_LABELS[type] ?? type}: ${money(market)}</li>`
         )
         .join("");
 }
@@ -108,7 +138,7 @@ function buildCartForm(card) {
     const optionTags = options
         .map(
             ({ type, market }) =>
-                `<option value="${type}">${PRINT_LABELS[type] ?? type} — $${market.toFixed(2)} USD</option>`
+                `<option value="${type}">${PRINT_LABELS[type] ?? type} — ${money(market)}</option>`
         )
         .join("");
 
@@ -232,7 +262,7 @@ function openRarityDialog(currentTier, rarityName) {
 // Build the HTML for one card tile.
 function createCardElement(card) {
     const price = getMarketPrice(card);
-    const priceText = price === null ? "Price unavailable" : `$${price.toFixed(2)} USD`;
+    const priceText = price === null ? "Price unavailable" : money(price);
     const tier = getRarityTier(card.rarity);
     const badge = tier
         ? `<button type="button" class="rarity-badge ${tier.className}"
@@ -365,9 +395,20 @@ async function loadCards(setId) {
     }
 }
 
+// Load exchange rates (from cache or the Frankfurter API), then redraw
+// the cards so prices show in the chosen currency.
+async function loadExchangeRates() {
+    rateInfo = await loadRates();
+    ratesChecked = true;
+    updateCurrencyNote();
+    if (allCards.length > 0) updateDisplay();
+}
+
 // Start the page: load the sets, then the newest set's cards.
 async function init() {
     updateCartCount();
+    document.querySelector("#currency").value = currency;
+    loadExchangeRates(); // no await on purpose: cards load at the same time
     try {
         const newestSetId = await loadSets();
         if (newestSetId) {
@@ -385,6 +426,12 @@ document.querySelector("#search").addEventListener("input", updateDisplay);
 document.querySelector("#sort").addEventListener("change", updateDisplay);
 document.querySelector("#rarity-filter").addEventListener("change", updateDisplay);
 document.querySelector("#artist-filter").addEventListener("change", updateDisplay);
+document.querySelector("#currency").addEventListener("change", (event) => {
+    currency = event.target.value;
+    setSelectedCurrency(currency);
+    updateCurrencyNote();
+    if (allCards.length > 0) updateDisplay();
+});
 document.querySelector("#set-filter").addEventListener("change", (event) => {
     loadCards(event.target.value);
 });
