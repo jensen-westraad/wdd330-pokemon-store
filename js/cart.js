@@ -21,7 +21,7 @@ export function getCart() {
     try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
         return Array.isArray(saved) ? saved.filter(isValidItem) : [];
-    } catch (error) {
+    } catch {
         return [];
     }
 }
