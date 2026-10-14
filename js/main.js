@@ -159,6 +159,16 @@ function updateCartCount() {
     document.querySelector("#cart-count").textContent = getCartCount();
 }
 
+// Make the header cart number pulse. The class is removed when the
+// animation ends, so it can play again on the next add.
+function bumpCartCount() {
+    const count = document.querySelector("#cart-count");
+    count.addEventListener("animationend", () => count.classList.remove("bump"), {
+        once: true,
+    });
+    count.classList.add("bump");
+}
+
 // Handle a click on the "Add to cart" button in the modal.
 function handleAddToCart(card) {
     const message = document.querySelector("#cart-message");
@@ -187,6 +197,7 @@ function handleAddToCart(card) {
         ? `Added ${quantity} × ${card.name} (${PRINT_LABELS[printType] ?? printType}) to your cart.`
         : "Sorry, the cart could not be saved in this browser.";
     updateCartCount();
+    if (saved) bumpCartCount();
 }
 
 // Fill the details modal with one card's information and open it.
