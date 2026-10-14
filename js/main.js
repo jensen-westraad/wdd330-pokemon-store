@@ -390,7 +390,14 @@ async function loadSets() {
 // If the live API fails, fetchWithFallback loads the saved sample cards.
 async function loadCards(setId) {
     const list = document.querySelector("#card-list");
-    list.textContent = "Loading cards...";
+    list.innerHTML = `
+    <div class="loading" role="status">
+      <span class="loading-dot" aria-hidden="true"></span>
+      <span class="loading-dot" aria-hidden="true"></span>
+      <span class="loading-dot" aria-hidden="true"></span>
+      <span>Loading cards...</span>
+    </div>
+  `;
     try {
         const result = await fetchWithFallback(
             `${API_BASE}/cards?q=set.id:${setId}&pageSize=250`,

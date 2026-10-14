@@ -776,3 +776,49 @@ dialog[open] {
         animation: none;
     }
 }
+
+/* Loading state: three pixel squares bounce while cards load */
+.loading {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem 0;
+}
+
+.loading-dot {
+    width: 14px;
+    height: 14px;
+    background: var(--red);
+    animation: loading-bounce 0.8s ease-in-out infinite;
+}
+
+.loading-dot:nth-child(2) {
+    background: var(--yellow);
+    animation-delay: 0.15s;
+}
+
+.loading-dot:nth-child(3) {
+    background: var(--navy);
+    animation-delay: 0.3s;
+}
+
+@keyframes loading-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-14px);
+    }
+}
+
+/* Visitors who ask their device for less motion see still squares */
+@media (prefers-reduced-motion: reduce) {
+    .loading-dot {
+        animation: none;
+    }
+}
