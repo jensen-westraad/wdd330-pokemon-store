@@ -1,11 +1,3 @@
-// Cart storage. The cart is saved in localStorage so it survives
-// page refreshes, with no backend needed.
-//
-// Each cart line looks like:
-// { id, printType, name, setName, image, price, quantity }
-// A line is identified by card id + print type, so a Holofoil and a
-// Reverse holofoil of the same card are separate lines.
-// The price is stored in US dollars, as it was when the card was added.
 
 const STORAGE_KEY = "pokemon-tcg-store-cart";
 const MAX_QUANTITY = 99;

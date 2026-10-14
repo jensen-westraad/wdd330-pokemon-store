@@ -1,7 +1,3 @@
-// js/currency.js
-// Shared currency helpers: exchange rates (Frankfurter API), caching,
-// the selected currency, and price formatting. Used by both pages.
-
 const CURRENCY_KEY = "pokemon-tcg-store-currency";
 const RATES_KEY = "pokemon-tcg-store-rates";
 const RATES_URL =
@@ -53,11 +49,6 @@ function readCachedRates() {
     return null;
 }
 
-/**
- * Get exchange rates. Returns { rates, date, fetchedAt, source } where
- * source is "cache", "network" or "stale" (old cache used because the
- * network failed). Returns null if there are no rates at all.
- */
 export async function loadRates() {
     const cached = readCachedRates();
     if (cached && Date.now() - cached.fetchedAt < CACHE_MS) {

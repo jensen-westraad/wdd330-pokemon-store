@@ -7,21 +7,17 @@ import {
     formatAmount,
 } from "./currency.js";
 
-// Friendly names for the print types stored in the cart.
 const PRINT_LABELS = {
     normal: "Normal",
     holofoil: "Holofoil",
     reverseHolofoil: "Reverse holofoil",
 };
 
-// Currency display state. The cart always stores USD; amounts are only
-// converted when shown. rateInfo is { rates, date, source } or null.
 let currency = getSelectedCurrency();
 let rateInfo = null;
 let ratesChecked = false;
 
 // The currency actually used for display. If rates are not available
-// (yet), we show USD instead of guessing.
 function displayCurrency() {
     return currency !== "USD" && rateInfo ? currency : "USD";
 }
@@ -76,7 +72,7 @@ function updateCurrencyNote() {
     }
 }
 
-// Build the HTML element for one cart line, and wire up its buttons.
+
 function createLineElement(line) {
     const printLabel = PRINT_LABELS[line.printType] ?? line.printType;
     const name = escapeHtml(line.name);
