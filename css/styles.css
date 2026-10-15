@@ -822,3 +822,9 @@ dialog[open] {
         animation: none;
     }
 }
+
+/* "Show more cards" button spans the full width of the card grid */
+.show-more {
+    grid-column: 1 / -1;
+    justify-self: center;
+}

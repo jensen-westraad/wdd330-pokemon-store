@@ -9,9 +9,15 @@ import {
 // CardDex API (pokemontcg.io-compatible). Newest sets first.
 const API_BASE = "https://api.carddex.dev/compat/pokemontcg/v2";
 
-// Cards of the currently selected set. Search, sort, and rarity/artist
-// filtering work on this list without calling the API again.
+// Cards of the currently selected set. Search, sort, and filtering
+// work on this list without calling the API again.
 let allCards = [];
+
+// Only a few cards are drawn at first, so the page stays light.
+// "Show more cards" reveals the next batch.
+const PAGE_SIZE = 8;
+let visibleCount = PAGE_SIZE;
+let currentResults = [];
 
 // Currency display state. Prices stay in USD; they are only converted
 // when shown. rateInfo is { rates, date, source } or null if unavailable.
@@ -315,7 +321,7 @@ function compareCards(a, b, sortValue) {
     return sortValue === "price-asc" ? priceA - priceB : priceB - priceA;
 }
 
-// Show the given cards on the page, replacing whatever was there.
+// Show the first batch of the given cards, plus a button to reveal more.
 function renderCards(cards) {
     const list = document.querySelector("#card-list");
     list.innerHTML = "";
@@ -323,9 +329,24 @@ function renderCards(cards) {
         list.textContent = "No cards match your search.";
         return;
     }
-    cards.forEach((card) => {
+    cards.slice(0, visibleCount).forEach((card) => {
         list.appendChild(createCardElement(card));
     });
+
+    if (cards.length > visibleCount) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "details-button show-more";
+        button.textContent = `Show more cards (${cards.length - visibleCount} left)`;
+        button.addEventListener("click", () => {
+            const oldCount = visibleCount;
+            visibleCount += PAGE_SIZE;
+            renderCards(cards);
+            // Keep keyboard focus at the first new card.
+            list.querySelectorAll(".details-button:not(.show-more)")[oldCount]?.focus();
+        });
+        list.appendChild(button);
+    }
 }
 
 // Fill the rarity dropdown with the rarities found in the loaded cards.
@@ -361,12 +382,13 @@ function updateDisplay() {
     const artist = document.querySelector("#artist-filter").value;
     const sortValue = document.querySelector("#sort").value;
 
-    const results = allCards
+    currentResults = allCards
         .filter((card) => card.name.toLowerCase().includes(term))
         .filter((card) => !rarity || card.rarity === rarity)
         .filter((card) => !artist || card.artist === artist)
         .sort((a, b) => compareCards(a, b, sortValue));
-    renderCards(results);
+    visibleCount = PAGE_SIZE;
+    renderCards(currentResults);
 }
 
 // Fill the set dropdown with the 30 newest sets.
@@ -414,12 +436,13 @@ async function loadCards(setId) {
 }
 
 // Load exchange rates (from cache or the Frankfurter API), then redraw
-// the cards so prices show in the chosen currency.
+// the cards so prices show in the chosen currency. The list keeps its
+// current batch size.
 async function loadExchangeRates() {
     rateInfo = await loadRates();
     ratesChecked = true;
     updateCurrencyNote();
-    if (allCards.length > 0) updateDisplay();
+    if (allCards.length > 0) renderCards(currentResults);
 }
 
 // Start the page: load the sets, then the newest set's cards.
@@ -448,7 +471,7 @@ document.querySelector("#currency").addEventListener("change", (event) => {
     currency = event.target.value;
     setSelectedCurrency(currency);
     updateCurrencyNote();
-    if (allCards.length > 0) updateDisplay();
+    if (allCards.length > 0) renderCards(currentResults);
 });
 document.querySelector("#set-filter").addEventListener("change", (event) => {
     loadCards(event.target.value);
