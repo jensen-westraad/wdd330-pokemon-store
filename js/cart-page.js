@@ -1,4 +1,5 @@
 import { getCart, setQuantity, removeFromCart, getCartCount } from "./cart.js";
+import { addToBinder } from "./binder.js";
 import {
     getSelectedCurrency,
     setSelectedCurrency,
@@ -7,17 +8,21 @@ import {
     formatAmount,
 } from "./currency.js";
 
+// Friendly names for the print types stored in the cart.
 const PRINT_LABELS = {
     normal: "Normal",
     holofoil: "Holofoil",
     reverseHolofoil: "Reverse holofoil",
 };
 
+// Currency display state. The cart always stores USD; amounts are only
+// converted when shown. rateInfo is { rates, date, source } or null.
 let currency = getSelectedCurrency();
 let rateInfo = null;
 let ratesChecked = false;
 
 // The currency actually used for display. If rates are not available
+// (yet), we show USD instead of guessing.
 function displayCurrency() {
     return currency !== "USD" && rateInfo ? currency : "USD";
 }
@@ -72,7 +77,61 @@ function updateCurrencyNote() {
     }
 }
 
+// Demo checkout: no payment is taken. Every cart line that knows its
+// set goes into that set's binder, and those lines leave the cart.
+// Lines saved before sets were stored, or that could not be saved,
+// stay in the cart.
+function handleDemoCheckout() {
+    const message = document.querySelector("#checkout-message");
+    const seen = new Set();
+    let added = 0;
+    let alreadyOwned = 0;
+    let skipped = 0;
+    let failed = 0;
 
+    getCart().forEach((line) => {
+        if (typeof line.setId !== "string" || typeof line.setTotal !== "number") {
+            skipped += 1;
+            return;
+        }
+
+        const result = addToBinder(line.setId, line.setName, line.setTotal, {
+            id: line.id,
+            name: line.name,
+            number: line.number,
+            image: line.image,
+        });
+        if (!result.saved) {
+            failed += 1;
+            return;
+        }
+
+        // The same card in two print types is still one binder slot.
+        if (!seen.has(line.id)) {
+            seen.add(line.id);
+            if (result.alreadyOwned) {
+                alreadyOwned += 1;
+            } else {
+                added += 1;
+            }
+        }
+        removeFromCart(line.id, line.printType);
+    });
+
+    const parts = [];
+    if (added > 0) parts.push(`${added} new card${added === 1 ? "" : "s"} added to your binders.`);
+    if (alreadyOwned > 0) parts.push(`${alreadyOwned} already in your binders.`);
+    if (skipped > 0) parts.push(`${skipped} item${skipped === 1 ? " was" : "s were"} added before binders existed, so ${skipped === 1 ? "it" : "they"} stayed in your cart. Remove and add again from the store.`);
+    if (failed > 0) parts.push(`${failed} could not be saved in this browser.`);
+
+    const link = added + alreadyOwned > 0 ? ' <a href="/binder.html">View your binders</a>' : "";
+    message.innerHTML = `Demo checkout complete. No payment was taken. ${parts.join(" ")}${link}`;
+
+    render();
+    document.querySelector("#cart-heading").focus();
+}
+
+// Build the HTML element for one cart line, and wire up its buttons.
 function createLineElement(line) {
     const printLabel = PRINT_LABELS[line.printType] ?? line.printType;
     const name = escapeHtml(line.name);
@@ -138,10 +197,13 @@ function render(focusKey, focusSelector) {
     <h2>Summary</h2>
     <p>Cards: <strong>${getCartCount()}</strong></p>
     <p class="cart-total">Total: <strong>${formatCents(totalCents)}</strong></p>
+    <button type="button" id="demo-checkout" class="details-button">Demo checkout</button>
     <p class="cart-note">Totals use each card's TCGplayer market price (in US dollars) from when it
       was added to the cart, converted to the currency you chose, so they are estimates and
-      may differ from current prices. This is a demo store, so checkout is not available.</p>
+      may differ from current prices. This is a demo store: no payment is taken, and Demo
+      checkout adds your cards to your binders.</p>
   `;
+    document.querySelector("#demo-checkout").addEventListener("click", handleDemoCheckout);
 
     if (focusKey) {
         const lineElement = [...document.querySelectorAll(".cart-line")].find(

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Open your virtual card binders and see how close you are to completing each Pokémon TCG set.">
+    <meta name="author" content="Jensen Westraad">
+    <title>Your Binders – Pokémon TCG Store</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-inner">
+            <svg class="logo" viewBox="0 0 48 48" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true"
+                focusable="false">
+                <path fill="#1b1f2a"
+                    d="M12 0h24v4h-24z M8 4h4v4h-4z M36 4h4v4h-4z M4 8h4v4h-4z M40 8h4v4h-4z M0 12h4v4h-4z M44 12h4v4h-4z M0 16h4v4h-4z M16 16h16v4h-16z M44 16h4v4h-4z M0 20h20v8h-20z M28 20h20v8h-20z M0 28h4v4h-4z M16 28h16v4h-16z M44 28h4v4h-4z M0 32h4v4h-4z M44 32h4v4h-4z M4 36h4v4h-4z M40 36h4v4h-4z M8 40h4v4h-4z M36 40h4v4h-4z M12 44h24v4h-24z" />
+                <path fill="#cc0000"
+                    d="M12 4h24v4h-24z M8 8h32v4h-32z M4 12h40v4h-40z M4 16h12v4h-12z M32 16h12v4h-12z" />
+                <path fill="#ffffff"
+                    d="M20 20h8v8h-8z M4 28h12v4h-12z M32 28h12v4h-12z M4 32h40v4h-40z M8 36h32v4h-32z M12 40h24v4h-24z" />
+            </svg>
+            <div>
+                <p class="site-title"><a href="/index.html">Pokémon TCG Store</a></p>
+                <p class="tagline">Browse the newest sets, card by card.</p>
+            </div>
+            <a class="cart-status" href="/cart.html">Cart: <span id="cart-count" aria-live="polite">0</span></a>
+            <a class="cart-status binder-link" href="/binder.html">Binders</a>
+        </div>
+    </header>
+
+    <main>
+        <p><a class="back-link" href="/index.html">← Continue shopping</a></p>
+        <h1>Your binders</h1>
+
+        <div id="binder-shelf"></div>
+        <section id="binder-view" aria-label="Open binder"></section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p>Card data and images from <a href="https://carddex.dev" target="_blank" rel="noopener">CardDex</a>.
+                Binders are saved in this browser only. Values are TCGplayer market estimates in US dollars, shown in
+                the currency you chose on the store or cart page.</p>
+            <p class="footer-small">Pokémon and its trademarks belong to their respective owners.
+                This is an unofficial fan-made student project for BYU–Idaho WDD330.</p>
+        </div>
+    </footer>
+
+    <dialog id="card-dialog" aria-labelledby="dialog-title">
+        <button type="button" id="dialog-close" aria-label="Close details">×</button>
+        <div id="dialog-content"></div>
+    </dialog>
+
+    <script type="module" src="/js/binder-page.js"></script>
+</body>
+
+</html>

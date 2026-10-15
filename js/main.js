@@ -1,4 +1,5 @@
 import { addToCart, getCartCount } from "./cart.js";
+import { addToBinder } from "./binder.js";
 import {
     getSelectedCurrency,
     setSelectedCurrency,
@@ -193,6 +194,9 @@ function handleAddToCart(card) {
             printType,
             name: card.name,
             setName: card.set.name,
+            setId: card.set.id,
+            setTotal: Number(card.set.total) || 0,
+            number: card.number,
             image: card.images.small,
             price: option.market,
         },
@@ -204,6 +208,25 @@ function handleAddToCart(card) {
         : "Sorry, the cart could not be saved in this browser.";
     updateCartCount();
     if (saved) bumpCartCount();
+}
+
+// Handle a click on the "Add to binder" button in the modal.
+function handleAddToBinder(card) {
+    const message = document.querySelector("#binder-message");
+    const result = addToBinder(card.set.id, card.set.name, card.set.total, {
+        id: card.id,
+        name: card.name,
+        number: card.number,
+        image: card.images.small,
+    });
+
+    if (!result.saved) {
+        message.textContent = "Sorry, the binder could not be saved in this browser.";
+    } else if (result.alreadyOwned) {
+        message.textContent = `${card.name} is already in your ${card.set.name} binder.`;
+    } else {
+        message.textContent = `Added ${card.name} to your ${card.set.name} binder.`;
+    }
 }
 
 // Fill the details modal with one card's information and open it.
@@ -227,12 +250,19 @@ function openCardDialog(card) {
       <h3>TCGplayer market price</h3>
       <ul>${buildPriceRows(card)}</ul>
       ${buildCartForm(card)}
+      <div class="binder-form">
+        <button type="button" id="add-to-binder" class="details-button">Add to binder</button>
+        <p id="binder-message" role="status"></p>
+      </div>
     </div>
   `;
 
     document
         .querySelector("#add-to-cart")
         ?.addEventListener("click", () => handleAddToCart(card));
+    document
+        .querySelector("#add-to-binder")
+        .addEventListener("click", () => handleAddToBinder(card));
 
     document.querySelector("#card-dialog").showModal();
 }
